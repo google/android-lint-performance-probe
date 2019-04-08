@@ -67,8 +67,8 @@ task jvmArgs {
         }
 
         // Add the YourKit instrumentation agent.
-        def agent = yourkitAgent
-        if (!file(agent).exists()) {
+        def agent = file(yourkitAgent)
+        if (!agent.exists()) {
             throw new InvalidUserDataException("""\
                 File not found: ${agent}
                 Please edit gradle.properties to point to a valid YourKit agent.\
@@ -83,11 +83,14 @@ task jvmArgs {
 
         // Print out results.
         println """
-            Please use the following JVM arguments to instrument a Lint invocation from Gradle.
+***********************************************************************************
+Please use the following JVM arguments to instrument a Lint invocation from Gradle.
+Be careful to quote the arguments as needed.
 
-            ${jvmArgs.join(' ')}
+${jvmArgs.join('\n\n')}
 
-            Instrumentation results will be printed to console after the Lint analysis finishes.
-        """.stripIndent()
+Instrumentation results will be printed to console after the Lint analysis is done.
+***********************************************************************************
+"""
     }
 }

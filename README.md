@@ -28,9 +28,10 @@ those JVM arguments will look like:
 -agentpath:/opt/yourkit/bin/linux-x86-64/libyjpagent.so=disableall,probebootclasspath=/path/to/lint-performance-probe/build/libs/lint-performance-probe.jar,probe_on=com.android.tools.probes.LintDetectorStats
 ```
 
-Finally, add the generated arguments to your Gradle JVM arguments in an Android project, and invoke Lint from Gradle
-as you normally do. Once Lint finishes, performance statistics on each Lint detector should be printed to the console.
-Here's some sample output:
+Add the generated arguments to your Gradle JVM arguments in an Android project. (See [Gradle
+documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties)
+for how to set the `org.gradle.jvmargs` property.) Finally, invoke Lint from Gradle as you normally do. Once Lint
+finishes, performance statistics for each Lint detector should be printed to the console. Here's some sample output:
 ```
 $ ./gradlew lintDebug -no-daemon -Dorg.gradle.jvmargs="..."
 
@@ -80,6 +81,15 @@ TopDownAnalyzerFacadeForJVM         770 MB         770 MB              6
              GradleDetector           2 MB           2 MB             94
            OverdrawDetector           1 MB           1 MB             36
 ```
+
+
+Troubleshooting
+---
+
+- If you get strange error messages from the Gradle JVM, double check that the JVM arguments are formatted
+  and quoted properly. Quoting may be needed if there are spaces in the file paths, for example. Similarly,
+  be aware that typos in the JVM arguments may cause YourKit to silently ignore the probe.
+
 
 Notes and tips
 ---
