@@ -7,6 +7,9 @@ collect and report performance statistics per detector for a Lint analysis invok
 [YourKit Probes](https://www.yourkit.com/docs/java/help/probe_class.jsp) to do the byte code instrumentation part,
 although in principle alternative instrumentation agents could be used.
 
+This tool was involved in the 2x-level Lint performance improvements that landed with the Android Studio 3.3 release;
+there's a [blog post](https://link.medium.com/ppyrkiQEPV) with more details.
+
 
 Getting started
 ---
