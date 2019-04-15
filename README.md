@@ -36,7 +36,7 @@ documentation](https://docs.gradle.org/current/userguide/build_environment.html#
 for how to set the `org.gradle.jvmargs` property.) Finally, invoke Lint from Gradle as you normally do. Once Lint
 finishes, performance statistics for each Lint detector should be printed to the console. Here's some sample output:
 ```
-$ ./gradlew lintDebug -no-daemon -Dorg.gradle.jvmargs="..."
+$ ./gradlew lintDebug --no-daemon -Dorg.gradle.jvmargs="..."
 
 BUILD SUCCESSFUL in 10s
 15 actionable tasks: 1 executed, 14 up-to-date
@@ -111,7 +111,7 @@ Notes and tips
   in `LintDetectorStats.java`.
 
 - If you make code changes to the tool, be sure to start a new Gradle daemon for Lint; otherwise the old version
-  of the tool could still be in use. This is easy to do by using the `-no-daemon` Gradle flag.
+  of the tool could still be in use. This is easy to do by using the `--no-daemon` Gradle flag.
 
 - Be aware that caching effects may distort the performance stats for individual detectors.
   For example, the first Lint check to run might get the blame for the initial cache misses when resolving
