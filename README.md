@@ -110,6 +110,11 @@ Troubleshooting
   Registered: com.android.tools.probes.LintDetectorStats
   ```
 
+- If you make code changes to the tool, be sure to run `./gradlew assemble` in order to rebuild the probe.
+  Also, be sure to start a new Gradle daemon for Lint; otherwise the old version of the tool could still be in use.
+  This is easy to do by using the `--no-daemon` Gradle flag.
+
+
 Notes and tips
 ---
 
@@ -125,9 +130,6 @@ Notes and tips
 
 - To include your own custom Lint checks in the output of the tool, you can add to the list of regular expressions
   in `LintDetectorStats.java`.
-
-- If you make code changes to the tool, be sure to start a new Gradle daemon for Lint; otherwise the old version
-  of the tool could still be in use. This is easy to do by using the `--no-daemon` Gradle flag.
 
 - Be aware that caching effects may distort the performance stats for individual detectors.
   For example, the first Lint check to run might get the blame for the initial cache misses when resolving
