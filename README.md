@@ -114,6 +114,9 @@ Troubleshooting
   Also, be sure to start a new Gradle daemon for Lint; otherwise the old version of the tool could still be in use.
   This is easy to do by using the `--no-daemon` Gradle flag.
 
+- The tool may break after changes to Lint class/package names.
+  Please file an issue if the tool stops working for you after an AGP udpate.
+
 
 Notes and tips
 ---

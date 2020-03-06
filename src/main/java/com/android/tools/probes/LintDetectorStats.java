@@ -38,7 +38,10 @@ public class LintDetectorStats {
         }
     }
 
-    @MethodPattern("com.android.tools.lint.LintCoreApplicationEnvironment:disposeApplicationEnvironment()")
+    @MethodPattern({
+        "com.android.tools.lint.LintCoreApplicationEnvironment:disposeApplicationEnvironment()", // AGP 3.6 and earlier.
+        "com.android.tools.lint.UastEnvironment:disposeApplicationEnvironment()" // AGP 4.0 and later.
+    })
     public static class WrapAppEnv {
 
         public static void onExit() {
