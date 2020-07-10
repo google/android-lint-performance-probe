@@ -10,7 +10,7 @@ import java.util.*;
  * Use by calling [enter] and [exit] before and after each traced method is called.
  */
 @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-public class PerformanceStats<K> {
+class PerformanceStats {
 
     // Tracking time and tracking allocations require very similar code, but
     // an observation is that we never really want to track both simultaneously.
@@ -34,8 +34,8 @@ public class PerformanceStats<K> {
     }
 
     // Holds performance counters for a single tracepoint on a single thread.
-    static class Tracepoint<K> {
-        K key;
+    static class Tracepoint {
+        String id;
         int depth;
         long startMarker;
         long resumeMarker;
@@ -43,27 +43,27 @@ public class PerformanceStats<K> {
         long self;
         long callCount;
 
-        Tracepoint(K k) { key = k; }
+        Tracepoint(String id) { this.id = id; }
     }
 
-    private static class ThreadState<K> {
-        Map<K, Tracepoint<K>> tracepoints = new HashMap<>();
-        Tracepoint<K> currTracepoint;
+    private static class ThreadState {
+        Map<String, Tracepoint> tracepoints = new HashMap<>();
+        Tracepoint currTracepoint;
     }
 
     // Holds the state from all threads. Protected by monitor.
-    private final List<ThreadState<K>> allState = new ArrayList<>();
+    private final List<ThreadState> allState = new ArrayList<>();
 
     // Holds the state for the current thread. Protected by monitor because it is accessed by the stat dumping thread.
-    ThreadLocal<ThreadState<K>> localState = ThreadLocal.withInitial(() -> {
-        ThreadState<K> state = new ThreadState<>();
+    ThreadLocal<ThreadState> localState = ThreadLocal.withInitial(() -> {
+        ThreadState state = new ThreadState();
         synchronized (allState) { allState.add(state); }
         return state;
     });
 
     void clear() {
         synchronized (allState) {
-            for (ThreadState<K> state : allState) {
+            for (ThreadState state : allState) {
                 synchronized (state) {
                     state.tracepoints.clear();
                     state.currTracepoint = null;
@@ -72,25 +72,25 @@ public class PerformanceStats<K> {
         }
     }
 
-    private Tracepoint<K> getTracepoint(ThreadState<K> state, K key) {
+    private Tracepoint getTracepoint(ThreadState state, String id) {
         // As an optimization we try to reuse the last tracepoint. This is
         // especially useful for recursive functions, for example.
-        Tracepoint<K> cached = state.currTracepoint;
-        if (cached != null && key.equals(cached.key))
+        Tracepoint cached = state.currTracepoint;
+        if (cached != null && id.equals(cached.id))
             return cached;
-        return state.tracepoints.computeIfAbsent(key, Tracepoint::new);
+        return state.tracepoints.computeIfAbsent(id, Tracepoint::new);
     }
 
     // Note: returns the parent tracepoint to be stored on the stack.
-    Tracepoint<K> enter(K key) {
-        ThreadState<K> threadState = localState.get();
+    Tracepoint enter(String id) {
+        ThreadState threadState = localState.get();
         synchronized (threadState) { // Almost no contention.
-            Tracepoint<K> parent = threadState.currTracepoint;
-            Tracepoint<K> tracepoint = getTracepoint(threadState, key);
+            Tracepoint parent = threadState.currTracepoint;
+            Tracepoint tracepoint = getTracepoint(threadState, id);
 
             tracepoint.callCount++;
 
-            if (parent == null || !key.equals(parent.key)) {
+            if (parent == null || !id.equals(parent.id)) {
                 threadState.currTracepoint = tracepoint;
 
                 long now = measure();
@@ -110,12 +110,12 @@ public class PerformanceStats<K> {
     }
 
     // Note: takes the parent tracepoint returned from [enter].
-    void exit(K key, Tracepoint<K> parent) {
-        ThreadState<K> threadState = localState.get();
+    void exit(String id, Tracepoint parent) {
+        ThreadState threadState = localState.get();
         synchronized (threadState) {
-            Tracepoint<K> tracepoint = getTracepoint(threadState, key);
+            Tracepoint tracepoint = getTracepoint(threadState, id);
 
-            if (parent == null || !key.equals(parent.key)) {
+            if (parent == null || !id.equals(parent.id)) {
                 threadState.currTracepoint = parent;
 
                 long now = measure();
@@ -136,23 +136,23 @@ public class PerformanceStats<K> {
         return trackingAllocations ? totalAllocations.get().value : System.nanoTime();
     }
 
-    public void dumpStats(PrintWriter w) {
+    void dumpStats(PrintWriter w) {
         w.println();
 
-        Map<K, Tracepoint<K>> tallies = new HashMap<>();
-        List<ThreadState<K>> state;
+        Map<String, Tracepoint> tallies = new HashMap<>();
+        List<ThreadState> state;
         synchronized (allState) { state = new ArrayList<>(allState); }
-        for (ThreadState<K> threadState : state) {
+        for (ThreadState threadState : state) {
             synchronized (threadState) {
-                for (Map.Entry<K, Tracepoint<K>> e : threadState.tracepoints.entrySet()) {
-                    K key = e.getKey();
-                    Tracepoint<K> tracepoint = e.getValue();
-                    Tracepoint<K> tally = tallies.computeIfAbsent(key, Tracepoint::new);
+                for (Map.Entry<String, Tracepoint> e : threadState.tracepoints.entrySet()) {
+                    String id = e.getKey();
+                    Tracepoint tracepoint = e.getValue();
+                    Tracepoint tally = tallies.computeIfAbsent(id, Tracepoint::new);
                     tally.total += tracepoint.total;
                     tally.self += tracepoint.self;
                     tally.callCount += tracepoint.callCount;
                     if (tracepoint.depth > 0) {
-                        w.println("WARNING: " + prettyPrintKey(key) + " is still on the stack");
+                        w.println("WARNING: " + prettyPrintId(id) + " is still on the stack");
                     }
                 }
             }
@@ -161,7 +161,7 @@ public class PerformanceStats<K> {
         w.println("Lint detector performance stats:");
 
         int spacing = tallies.keySet().stream()
-                .map(it -> prettyPrintKey(it).length())
+                .map(it -> prettyPrintId(it).length())
                 .max(Comparator.naturalOrder())
                 .orElse(0);
         spacing += 2;
@@ -169,11 +169,11 @@ public class PerformanceStats<K> {
         w.println(String.format(format, "", "total", "self", "calls"));
 
         tallies.values().stream()
-                .sorted(Comparator.comparingLong((Tracepoint<K> tracepoint) -> tracepoint.total).reversed())
+                .sorted(Comparator.comparingLong((Tracepoint tracepoint) -> tracepoint.total).reversed())
                 .forEach(it ->
                         w.println(String.format(
                                 format,
-                                prettyPrintKey(it.key),
+                                prettyPrintId(it.id),
                                 prettyPrintValue(it.total),
                                 prettyPrintValue(it.self),
                                 it.callCount
@@ -181,28 +181,20 @@ public class PerformanceStats<K> {
                 );
     }
 
-    public void dumpStats() {
+    void dumpStats() {
         PrintWriter writer = new PrintWriter(System.out);
         dumpStats(writer);
         writer.flush();
     }
 
-    protected String prettyPrintKey(K key) {
-        return key.toString();
+    private String prettyPrintId(String id) {
+        // Assumes the IDs are class names.
+        int lastDot = id.lastIndexOf('.');
+        return lastDot == -1 ? id : id.substring(lastDot + 1);
     }
 
-    protected String prettyPrintValue(long value) {
+    private String prettyPrintValue(long value) {
         String unit = trackingAllocations ? "MB" : "ms";
         return (value / 1_000_000) + " " + unit;
-    }
-}
-
-// Convenience subclass for when the keys are class objects.
-class ClassStats extends PerformanceStats<Class<?>> {
-    @Override
-    public String prettyPrintKey(Class<?> key) {
-        String name = key.getName();
-        int lastDot = name.lastIndexOf('.');
-        return lastDot == -1 ? name : name.substring(lastDot + 1);
     }
 }

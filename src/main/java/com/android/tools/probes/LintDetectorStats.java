@@ -20,7 +20,7 @@ import com.yourkit.probes.OnEnterResult;
 
 @SuppressWarnings("unused") // Used by reflection from YourKit.
 public class LintDetectorStats {
-    private static final ClassStats classStats = new ClassStats();
+    private static final PerformanceStats perfStats = new PerformanceStats();
 
     @MethodPattern({
             "com.android.tools.lint.client.api.LintDriver:*(*)",
@@ -29,14 +29,14 @@ public class LintDetectorStats {
     })
     public static class WrapDetectors {
 
-        public static PerformanceStats.Tracepoint<Class<?>> onEnter(@ClassRef Class<?> clazz) {
-            return classStats.enter(clazz);
+        public static PerformanceStats.Tracepoint onEnter(@ClassRef Class<?> clazz) {
+            return perfStats.enter(clazz.getName());
         }
 
         public static void onExit(
                 @ClassRef Class<?> clazz,
-                @OnEnterResult PerformanceStats.Tracepoint<Class<?>> tracepoint) {
-            classStats.exit(clazz, tracepoint);
+                @OnEnterResult PerformanceStats.Tracepoint parentTracepoint) {
+            perfStats.exit(clazz.getName(), parentTracepoint);
         }
     }
 
@@ -47,9 +47,9 @@ public class LintDetectorStats {
     public static class WrapAppEnv {
 
         public static void onExit() {
-            classStats.dumpStats();
+            perfStats.dumpStats();
             System.out.println("Clearing stats");
-            classStats.clear();
+            perfStats.clear();
         }
     }
 }
