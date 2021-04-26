@@ -33,8 +33,16 @@ those JVM arguments will look like:
 
 Add the generated arguments to your Gradle JVM arguments in an Android project. (See [Gradle
 documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties)
-for how to set the `org.gradle.jvmargs` property.) Finally, invoke Lint from Gradle as you normally do. Once Lint
-finishes, performance statistics for each Lint detector should be printed to the console. Here's some sample output:
+for how to set the `org.gradle.jvmargs` property.)
+
+If you are using Android Gradle Plugin 7.0 or higher, you may also need to force Lint to run in-process. You can put the following line in your app's `gradle.properties` file.
+```
+android.experimental.runLintInProcess=true # Needed for AGP 7+
+```
+
+Finally, invoke Lint from Gradle as you normally do. Once Lint finishes,
+performance statistics for each Lint detector should be printed to the console.
+Here's some sample output:
 ```
 $ ./gradlew lintDebug --no-daemon -Dorg.gradle.jvmargs="..."
 
