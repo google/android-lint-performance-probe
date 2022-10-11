@@ -39,12 +39,12 @@ dependencies {
     }
 
     compileOnly files(yourkitJar)
-    compileOnly "com.google.code.java-allocation-instrumenter:java-allocation-instrumenter:3.1.0"
+    compileOnly "com.google.code.java-allocation-instrumenter:java-allocation-instrumenter:3.3.0"
 }
 
 task jvmArgs {
     dependsOn 'assemble'
-
+    
     doLast {
         def jvmArgs = []
 
