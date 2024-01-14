@@ -1,0 +1,2 @@
+-javaagent:/Users/chenke/.gradle/caches/modules-2/files-2.1/com.google.code.java-allocation-instrumenter/java-allocation-instrumenter/3.3.4/3427f16e551dd619c269536b44714f9601905b5d/java-allocation-instrumenter-3.3.4.jar
+-agentpath:/Applications/YourKit-Java-Profiler-2023.9.app/Contents/Resources/bin/mac/libyjpagent.dylib=disableall,probebootclasspath=/Users/chenke/Desktop/android-lint-performance-probe/line-performance-probe/build/libs/line-performance-probe-1.0.0-alpha.0.jar,probe_on=com.android.tools.probes.LintDetectorStats

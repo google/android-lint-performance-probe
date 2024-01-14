@@ -1,5 +1,5 @@
-plugins{
-    id("info.hellovass.embeddable") version "1.0.0-alpha.0" apply false
+plugins {
+    id("org.jetbrains.kotlin.jvm") version "1.5.20" apply false
 }
 
 group = "info.hellovass"
