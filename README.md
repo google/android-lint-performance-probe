@@ -17,14 +17,25 @@ Getting started
 This tool requires a valid [YourKit](https://www.yourkit.com/download/) installation. YourKit is a paid profiler,
 although trial versions are available.
 
-Once YourKit is installed, edit the properties in `gradle.properties` to point to the corresponding files in your
+Once YourKit is installed, clone this project and edit its `gradle.properties` so that it points to files in your
 YourKit installation. You will need to set both the `yourkitJar` property and the `yourkitAgent` property.
+As an example, your `gradle.properties` might look like this on a Mac:
 
-Next, run
+```
+yourkitJar=/Applications/YourKit-Java-Profiler-2024.9.app/Contents/Resources/lib/yourkit.jar
+yourkitAgent=/Applications/YourKit-Java-Profiler-2024.9.app/Contents/Resources/bin/mac/libyjpagent.dylib
+```
+
+This project does not ship with a `gradlew` wrapper, but you can bootstrap one with:
+```
+../your-android-project/gradlew wrapper
+```
+
+Use the new `gradlew` to run:
 ```
 $ ./gradlew jvmArgs
 ```
-to compile the tool and print out the JVM arguments needed to instrument Lint. Here's an example of what
+This will compile the tool and print out the JVM arguments needed to instrument Lint. Here's an example of what
 those JVM arguments will look like:
 
 ```
