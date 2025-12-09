@@ -30,15 +30,15 @@ repositories {
 }
 
 dependencies {
-    // Look for yourkit.jar, which contains the probe APIs.
-    if (!file(yourkitJar).exists()) {
+    // Look for yjp-probe-api-redist.jar, which contains the probe APIs.
+    if (!file(yourkitProbeApiJar).exists()) {
         throw new InvalidUserDataException("""\
-            File not found: ${yourkitJar}
-            Please edit gradle.properties to point to a valid yourkit.jar file.\
+            File not found: ${yourkitProbeApiJar}
+            Please edit gradle.properties to point to a valid yjp-probe-api-redist.jar file.\
         """.stripIndent())
     }
 
-    compileOnly files(yourkitJar)
+    compileOnly files(yourkitProbeApiJar)
     compileOnly "com.google.code.java-allocation-instrumenter:java-allocation-instrumenter:3.3.0"
 }
 
